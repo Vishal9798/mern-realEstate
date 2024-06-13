@@ -1,19 +1,42 @@
 import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs'; //install bcryptjs package
 import { errorHandler } from '../utils/error.js';
+import jwt from 'jsonwebtoken';  //install jsonwebtoken package
+
 export const signup = async (req, res, next) => {
-    const { username, email, password } = req.body;
-    const hashedPassword = bcryptjs.hashSync(password, 10); // for encrypting password in db
-    const newUser = new User({ username, email, password:hashedPassword });
+  const { username, email, password } = req.body;
+  const hashedPassword = bcryptjs.hashSync(password, 10); // for encrypting password in db
+  const newUser = new User({ username, email, password: hashedPassword });
 
 
-    //so that we can see the error message of duplicate email and username to the client
-    try{
-      await newUser.save();
-      res.status(201).json('user created');
-    } catch(error){
-      // next(errorHandler(440,'error created by me')); custom error by me
-      next(error);
+  //so that we can see the error message of duplicate email and username to the client
+  try {
+    await newUser.save();
+    res.status(201).json('user created');
+  } catch (error) {
+    // next(errorHandler(440,'error created by me')); custom error by me
+    next(error);
+  }
+
+};
+
+export const signin = async (req, res, next) => { //for login
+  const { email, password } = req.body;
+  try {
+    const validUser = await User.findOne({ email: email }); // finding email exist in db or not
+    if (!validUser) {
+      return next(errorHandler(404, 'user not found'));
     }
-   
-  };
+    const validPassword = bcryptjs.compareSync(password, validUser.password);
+    if (!validPassword) {
+      return next(errorHandler(401, 'Email or password is incorrect'));
+    }
+    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    const { password: pass, ...rest } = validUser._doc; // for password not to be shown in response
+    res.cookie('access_token', token, { httpOnly: true })
+    res.status(200).json(rest);  // returning everything except password
+    //res.status(200).json(validUser);
+  } catch (error) {
+    next(error)
+  }
+};
