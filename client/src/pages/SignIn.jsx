@@ -1,12 +1,18 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'  //`useNavigate` is a hook that allows you to navigate to a different route in your application.(signIN page here)
+import { useDispatch} from 'react-redux'
+import { useSelector } from 'react-redux'
+import { signInStart , signInSuccess , signInFailure } from '../redux/user/userSlice'
+
 
 
 export default function SignIn() {
   const [formData, setFormData] = useState({})  //initializing the form data
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState(null);
+  // const [loading, setLoading] = useState(false);
+  const { loading , error} = useSelector((state) => state.user); // using redux golbal state instead of above two lines
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({
       ...formData,  //saving the form data
@@ -16,7 +22,8 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      // setLoading(true);
+      dispatch(signInStart()); // using redux instead of setLoading(true)(aboveone)
       // const res = await fetch('/api/auth/signup', formData);  // we need to create proxy here as our web and db server add is differnt(3000,5173) proxy added to vite.config.js
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
@@ -28,17 +35,20 @@ export default function SignIn() {
       const data = await res.json();
       console.log(data);
       if (data.success == false) {
-        setError(data.message);
-        setLoading(false);
+        // setError(data.message);
+        // setLoading(false);
+        dispatch(signInFailure(data.message)); // using redux instead of setError(data.message) and setLoading(false) (aboveone)
         return;
       }
-      setLoading(false);
-      setError(null);
+      // setLoading(false);
+      // setError(null);
+      dispatch(signInSuccess(data)); // using redux instead of setError(null) and setLoading(false) (aboveone)
       navigate('/'); // after clicking signup button we will navigate to sign-in page
 
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+      // setLoading(false);
+      // setError(error.message);
+      dispatch(signInFailure(error.message)); // using redux instead of setError(error.message) and setLoading(false) (aboveone)
 
     }
 
