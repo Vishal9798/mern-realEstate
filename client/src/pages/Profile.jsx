@@ -3,9 +3,9 @@ import { useRef, useState, useEffect } from 'react' //for changing the image
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import { app } from '../firebase';
 import { uploadBytesResumable } from 'firebase/storage';
-import { updateUserStart, updateUserFailure, updateUserSuccess } from '../redux/user/userSlice';
+import {deleteUserSuccess ,  deleteUserStart, updateUserStart, updateUserFailure, updateUserSuccess , deleteUserFailure} from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
-import { set } from 'mongoose';
+
 
 
 function Profile() {
@@ -93,6 +93,26 @@ function Profile() {
     }
   }
 
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if(data.success === false){
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+      
+      
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+      
+    }
+  }
+
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl font-bold text-center my-5'>PROFILE</h1>
@@ -120,7 +140,7 @@ function Profile() {
         <button disabled={loading} className='bg-green-500 text-white p-3 rounded-lg uppercase hover:opacity-90 disabled:opacity-70'>{loading ? 'Loading...':'Update'}</button>
       </form>
       <div className='flex justify-between mt-2'>
-        <span className='text-red-500 cursor-pointer'>Delete Account</span>
+        <span onClick={handleDeleteUser} className='text-red-500 cursor-pointer'>Delete Account</span>
         <span className='text-red-500 cursor-pointer'>Sign out</span>
       </div>
       <p className='text-red-700 mt-5'>{error ? error : ''}</p>
