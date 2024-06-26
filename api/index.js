@@ -4,6 +4,7 @@ import dotenv from 'dotenv';  // first import the dotenv package(required for en
 import userRouter from './routes/user.route.js';  // import the userRouter
 import authRouter from './routes/auth.route.js';
 import cookieParser from 'cookie-parser'; // so that data can be accessed from cookie
+import  listingRouter  from './routes/listing.route.js';
 dotenv.config();
 
 
@@ -27,6 +28,7 @@ app.listen(3000, () => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
+app.use('/api/listing', listingRouter);
 
 //creating middleware for error handling
 app.use((err,req,res,next) => {
