@@ -6,10 +6,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',  // before /api this will be added
+        target: 'http://localhost:3000',
         secure: false,
       },
     },
+  },
+  build: {
+    outDir: 'dist',
   },
   plugins: [react()],
 })
