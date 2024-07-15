@@ -32,10 +32,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/listing', listingRouter);
 
-app.use(express.static(path.join(_dirname,'/client/dist')))  // for deploying
+app.use(express.static(path.join(_dirname, '/client/dist')))  // for deploying
 
-app.get('*',(req,res)=>{
-  res.sendFile(path.join(_dirname,'client','dist','index.html')); // for deploying
+app.get('*', (req,res)=>{
+  res.sendFile(path.join(_dirname, 'client', 'dist', 'index.html')); // for deploying
 })
 //creating middleware for error handling
 app.use((err,req,res,next) => {
